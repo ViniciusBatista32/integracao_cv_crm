@@ -1,61 +1,25 @@
 <?php 
 require 'vendor/autoload.php';
-
-const HOMOLOG = false;
-const credentials = "credentials.json";
-
-const cv_auth_token = "2d87e97bbf7ad0fddea2767b2fd49497c5b5e771";
-const cv_auth_email = "nauan.hael@sidegrowth.com.br";
-
-// DEFINE ID DAS PLANILHAS DE BACKUP E PRODUÇÃO
-const production_sheet = '1561peowbKSAdg4iupvNZ-HTmeSzlx6SYqCkq-NnFeM0';
-const backup_sheet = '1NLtnYohMfk5fkQPXoL4IEx2D597in1d4JfehvNLCSag';
+require 'config.php';
+require 'sheet.php';
+require 'production.php';
+require 'backup.php';
 
 //TODO PASSAR ISSO PARA CONSTANTE E AVALIAR NECESSIDADE
 $possible_cols = ["nome", "email", "telefone", "moradia", "cpf", "investimento", "atendimento", "midia"];
 $mandatory_cols = ["nome" => false, "email" => false, "telefone" => false];
 $jump_cols = [];
 
-class sheet
-{
-    //INSTANCIA E CONFIGURA DOCUMENTO GOOGLE SHEETS
-    private $client;
-    private $service;
-
-    public function __construct($sheet_id, $page = "COPAÍBA")
-    {
-        $this::$client = new \Google_Client();
-        $this::$client->setApplicationName('Google Sheets and PHP');
-        $this::$client->setScopes([\Google_Service_Sheets::SPREADSHEETS]);
-        $this::$client->setAccessType('offline');
-        $this::$client->setAuthConfig(credentials);
-        $this::$service = new Google_Service_Sheets($this::$client);
-
-        $this::getSheet($sheet_id, $page);
-    }
-
-    private function getSheet($sheet_id, $page)
-    {
-        $response = $this::$service->spreadsheets_values->get($sheet_id, $page);
-        return $response->getValues();
-    }
-}
-
+// INSTANCIA PLANILHA DE PRODUÇÃO
 $instance_production_sheet = new sheet(production_sheet);
+// PEGA OS DADOS DA PLANILHA DE PRODUÇÃO
+$instance_production_sheet = $instance_production_sheet->
 
 $header = [];
 $rows = [];
 
 // VALIDA SE COLUNAS ATENDEM AS COLUNAS OBRIGATÓRIAS E SE ESTÃO NAS POSSÍVEIS, SE NÃO, PULA COLUNA
-foreach($sheet_data[0] as $idx => $col)
-{
-    $col = strtolower($col);
 
-    if(!in_array($col, $possible_cols))
-        $jump_cols[] = $idx;
-    else if(isset($mandatory_cols[$col]))
-        $mandatory_cols[$col] = true;
-}
 
 // CASO UMA COLUNA OBRIGATÓRIA NÃO FOI ENVIADA, CÓDIGO PARA
 if(in_array(false, $mandatory_cols))
