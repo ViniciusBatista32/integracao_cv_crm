@@ -1,6 +1,5 @@
 <?php
 
-const HOMOLOG = false;
 const credentials = "credentials.json";
 const cv_auth_token = "2d87e97bbf7ad0fddea2767b2fd49497c5b5e771";
 const cv_auth_email = "nauan.hael@sidegrowth.com.br";
