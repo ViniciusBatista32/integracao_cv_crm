@@ -2,31 +2,48 @@
 
 class production extends sheet
 {
-    private static $possible_cols = ["nome", "email", "telefone", "moradia", "cpf", "investimento", "atendimento", "midia"];
-    private static $mandatory_cols = ["nome" => false, "email" => false, "telefone" => false];
+    public static $possible_cols = ["nome", "email", "telefone", "moradia", "cpf", "investimento", "atendimento", "midia"];
+    public static $mandatory_cols = ["nome" => false, "email" => false, "telefone" => false];
+
+    public function __construct($sheet_id, $page)
+    {
+        parent::__construct($sheet_id, $page);
+
+        // PEGA DADOS DA PLANILHA
+        $this::$sheet_data = $this->getSheet($this::$sheet_id, $this::$page);
+        // SEPARA CABEÇALHO (COLUNAS)
+        $this::$header = $this->getHeader();
+        // VALIDA AS COLUNAS OBRIGATÓRIAS
+        $this->checkMandatoryCols($this::$header);
+        // PEGA ULTIMA LETRA DAS COLUNAS
+        $this::$cols_end = $this->getAlphabetRange($this::$header);
+    }
 
     function swapLeadData($lead, $lead_index)
     {
         $lead_data = Array(
-            "sheet_init" => $this->$cols_init . ($lead_index + 2), //LISTA COLUNAS, INIT = A, FIN = COUNT($COL) -> LIN = IDX + 1
-            "sheet_end" => $this->$cols_end . ($lead_index + 2),
+            "lead_init" => $this::$cols_init . ($lead_index + 2), //LISTA COLUNAS, INIT = A, FIN = COUNT($COL) -> LIN = IDX + 1
+            "lead_end" => $this::$cols_end . ($lead_index + 2),
             "raw_data" => $lead,
             "json" => Array()
         );
 
         $lead_desc = "Lead inserido via integração com planilha do Google Sheets\n";
 
-        foreach($this->$header as $col_idx => $col)
+        foreach($this::$header as $col_idx => $col)
         {
             $col = strtolower($col);
 
-            if(!in_array($col_idx, $this->$jump_cols))
+            if(!in_array($col_idx, $this::$jump_cols))
             {
                 $val = isset($lead[$col_idx]) ? $lead[$col_idx] : "";
-                //TODO REALIZAR O THROW ERROR DE INFOS DE LEAD
-                // $this->throwError();
-                if(empty($val) && array_key_exists($col, $this->$mandatory_cols))
-                    continue 2;
+                
+                if(empty($val) && array_key_exists($col, $this::$mandatory_cols))
+                {
+                    // CASO COLUNA OBRIGATÓRIA NÃO TENHA SIDO PREENCHIDA NO LEAD -> NÃO SERÁ CADASTRADO
+                    $this->throwError("lead_exception", "Coluna obrigatória '" . $col . "' vazia");
+                    return false;
+                }
                 else if(empty($val))
                     continue;
                 
@@ -35,19 +52,17 @@ class production extends sheet
                 {
                     case "investimento":
                         $lead_desc .= "Interesse: Investimento\n";
-                        continue 2;
                     break;
 
                     case "moradia":
                         $lead_desc .= "Interesse: Moradia\n";
-                        continue 2;
                     break;
 
                     case "atendimento":
                         $lead_desc .= "Atendimento:" . $val . "\n";
-                        continue 2;
                     break;
-
+                    
+                    // INSERE MIDIA COMO ENDEREÇO
                     case "midia":
                         $col = "endereco";
                     break;
