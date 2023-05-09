@@ -6,14 +6,13 @@ require 'production.php';
 require 'backup.php';
 
 // INSTANCIA PLANILHA DE PRODUÇÃO
-$instance_production_sheet = new production(production_sheet, "COPAÍBA");
 $instance_backup_sheet = new backup(backup_sheet, "COPAÍBA");
-var_dump($instance_production_sheet::$sheet_id);
-die();
+$instance_production_sheet = new production(production_sheet, "COPAÍBA");
+
 $leads = [];
 
 // MONTA AS LINHAS E SUBSTITUI NOME DAS COLUNAS PELOS CAMPOS DA API
-foreach($instance_production_sheet::$sheet_data as $lead_index => $lead)
+foreach($instance_production_sheet->sheet_data as $lead_index => $lead)
 {
     $swaped_lead = $instance_production_sheet->swapLeadData($lead, $lead_index);
     
@@ -36,7 +35,6 @@ curl_setopt($ch, CURLOPT_URL, $url);
 curl_setopt($ch, CURLOPT_POST, 1);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-
 
 foreach($leads as $lead)
 {
