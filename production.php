@@ -5,7 +5,9 @@ class production extends sheet
     public $possible_cols = ["nome", "email", "telefone", "moradia", "cpf", "investimento", "atendimento", "midia"];
     public $mandatory_cols = ["nome" => false, "email" => false, "telefone" => false];
 
-    public function __construct($sheet_id, $page)
+    protected $empreendimento;
+
+    public function __construct($sheet_id, $page, $empreendimento, $possible_cols = NULL)
     {
         parent::__construct($sheet_id, $page);
 
@@ -17,6 +19,12 @@ class production extends sheet
         $this->checkMandatoryCols($this->header);
         // PEGA ULTIMA LETRA DAS COLUNAS
         $this->cols_end = $this->getAlphabetRange($this->header);
+
+        if(!empty($possible_cols))
+            $this->possible_cols = $possible_cols;
+
+        $this->empreendimento = $empreendimento;
+        
     }
 
     function swapLeadData($lead, $lead_index)
@@ -58,8 +66,12 @@ class production extends sheet
                         $lead_desc .= "Interesse: Moradia\n";
                     break;
 
+                    case "interesse":
+                        $lead_desc .= "Interesse: " . $val . "\n";
+                    break;
+
                     case "atendimento":
-                        $lead_desc .= "Atendimento:" . $val . "\n";
+                        $lead_desc .= "Atendimento: " . $val . "\n";
                     break;
                     
                     // INSERE MIDIA COMO ENDEREÇO
@@ -80,6 +92,7 @@ class production extends sheet
         
         foreach($missing_mandatory_cols as $col)
         {
+            // VALIDA SE PELO MENOS COLUNA DE TELEFONE OU EMAIL FORAM PREENCHIDAS
             if($col == "email" && !in_array("telefone", $missing_mandatory_cols))
                 continue;
             else if($col == "telefone" && !in_array("email", $missing_mandatory_cols))
@@ -92,8 +105,7 @@ class production extends sheet
             }
         }
 
-        // POR ENQUANTO EMPREENDIMENTO PADRÃO SERÁ COPAÍBA = 3
-        $lead_data["json"]["idempreendimento"] = 3;
+        $lead_data["json"]["idempreendimento"] = $this->empreendimento;
 
         // INSERE INTERAÇÃO DE DESCRIÇÃO DE INSERÇÃO DO LEAD
         $lead_data["json"]["interacoes"] = Array(
