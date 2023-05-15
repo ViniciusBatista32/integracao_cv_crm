@@ -13,13 +13,13 @@ $sheets = [
         "empreendimento" => 3,
         "possible_cols" => NULL
     ],
-    // [
-    //     "backup_sheet" => backup_sheet,
-    //     "production_sheet" => production_sheet,
-    //     "page" => "DROP",
-    //     "empreendimento" => 8,
-    //     "possible_cols" => NULL
-    // ],
+    [
+        "backup_sheet" => backup_sheet,
+        "production_sheet" => production_sheet,
+        "page" => "DROP",
+        "empreendimento" => 8,
+        "possible_cols" => NULL
+    ],
     [
         "backup_sheet" => backup_sheet,
         "production_sheet" => production_sheet,
